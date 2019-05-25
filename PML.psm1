@@ -64,14 +64,30 @@ https://gallery.technet.microsoft.com/scriptcenter/eeff544a-f690-4f6b-a586-11eea
 #>
 }
 
+function CheckForPath{
+    param(
+    [Parameter( 
+            Mandatory = $False, 
+            ParameterSetName = "path", 
+            ValueFromPipeline = $True)] 
+            [string]$path, 
+    [Parameter( 
+            Mandatory = $True, 
+            ParameterSetName = "sought", 
+            ValueFromPipeline = $True)] 
+            [string]$sought
+    )
 
-
+    $found = $False
+    Get-ChildItem -Path $path | ForEach-Object {
+       if ($found -eq $False -and $_.name -eq $sought) {$found=$True}
+    }
+    return $found
+}
 
 <#-----------------------------For testing --------------------------------------#>
+<#
 FullScreenshot "Testimage.jpg"
-
 Show-Image 'Testimage.jpg' 'You can input your text here'
-
-import .\Microsoft\Take-ScreenShot.ps1
-
-Take-ScreenShot
+CheckForPath -sought "Testimage.jpg" | Write-Host;
+#>
