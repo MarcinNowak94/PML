@@ -32,7 +32,46 @@ $form.ShowDialog()
  
 }
 
+#[Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+function Screenshot([Drawing.Rectangle]$bounds, $path) {
+   $bmp = New-Object Drawing.Bitmap $bounds.width, $bounds.height
+   $graphics = [Drawing.Graphics]::FromImage($bmp)
+
+   $graphics.CopyFromScreen($bounds.Location, [Drawing.Point]::Empty, $bounds.size)
+
+   $bmp.Save($path)
+
+   $graphics.Dispose()
+   $bmp.Dispose()
+}
+<#Wrapper for full screen screenshot#>
+function FullScreenshot{
+param(
+[Parameter(Mandatory=$True,Position=1)][string]$File
+)
+Add-Type -AssemblyName System.Windows.Forms
+$screens = [System.Windows.Forms.Screen]::AllScreens
+
+Screenshot $screens.bounds $File
+
+<#
+Custom solution based on:
+https://stackoverflow.com/questions/2969321/how-can-i-do-a-screen-capture-in-windows-powershell
+https://stackoverflow.com/questions/7967699/get-screen-resolution-using-wmi-powershell-in-windows-7
+
+Also there is Microsoft-made solution for that:
+https://gallery.technet.microsoft.com/scriptcenter/eeff544a-f690-4f6b-a586-11eea6fc5eb8
+#>
+}
+
+
 
 
 <#-----------------------------For testing --------------------------------------#>
+FullScreenshot "Testimage.jpg"
+
 Show-Image 'Testimage.jpg' 'You can input your text here'
+
+import .\Microsoft\Take-ScreenShot.ps1
+
+Take-ScreenShot
